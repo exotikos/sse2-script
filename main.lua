@@ -25,12 +25,23 @@ local leftgroup = Tabs.Main:AddLeftGroupbox('World')
 local farm = Tabs.Main:AddLeftGroupbox("Farm")
 local rightgroup = Tabs.Main:AddRightGroupbox('Player')
 local credits = Tabs.Settings:AddRightGroupbox('Credits')
+local autobuy = Tabs.Main:AddRightGroupbox('Auto')
 
 local planetCoords = {
-    ["Miranda"] = CFrame.new(-24984.8379, -0.740695715, 26005.9219, -0.703192294, 0.697636425, 0.137200534, -0.198705956, -0.00755099719, -0.98003006, -0.682668686, -0.716412187, 0.143934309)
+    ["Miranda"] = CFrame.new(-24984.8379, -0.740695715, 26005.9219, -0.703192294, 0.697636425, 0.137200534, -0.198705956, -0.00755099719, -0.98003006, -0.682668686, -0.716412187, 0.143934309),
+    ["Venus"] = CFrame.new(-14795.5957, -3597.45923, -16981.3262, -0.0227449723, 0.281385332, 0.959325254, -0.963689029, 0.249196067, -0.0959415957, -0.266056627, -0.926673412, 0.265500009)
 }
 local planets = {}
-for i,a in ipairs(planetCoords) do
+local itemFuncs = {
+    ["test"] = function() print("this is a test function") end,
+    ["test2"] = function() print("this is a test function2") end
+}
+local items = {}
+local item
+for i,_ in next, itemFuncs do
+    table.insert(items, i)
+end
+for i,_ in next, planetCoords do
     table.insert(planets, i)
 end
 local player = game.Players.LocalPlayer
@@ -39,15 +50,17 @@ print(character)
 print(character.Name)
 
 function farmShockstones(amount)
+    if amount == nil then amount = 1 end
     local originalPos = character.HumanoidRootPart.CFrame
     amount = math.clamp(amount, 1, 5)
     local count = 0
     character:PivotTo(planetCoords["Miranda"])
     while count < amount do
-        wait()
-        local shockstone = workspace.Planets.Miranda:FindFirstChild("Shockstone")
+        wait(1)
+        local shockstone = workspace.Planets.Miranda.MirandaStoneScript:FindFirstChild("Shockstone")
         if shockstone then
             fireclickdetector(shockstone.ClickDetector)
+            count += 1
         end
     end
     character:PivotTo(originalPos)
@@ -56,8 +69,8 @@ end
 local shockstoneFarmNum
 farm:AddSlider('Shockstones', {
     Text = 'Shockstones',
-    Default = 0,
-    Min = 0,
+    Default = 1,
+    Min = 1,
     Max = 5,
     Rounding = 0,
     Compact = false,
@@ -72,6 +85,7 @@ farm:AddButton({
         farmShockstones(shockstoneFarmNum)
     end,
     DoubleClick = true,
+    Tooltip = "Does not use bombs."
 })
 leftgroup:AddDropdown('Teleport', {
     Values = planets,
@@ -84,6 +98,38 @@ leftgroup:AddDropdown('Teleport', {
     Callback = function(Value)
         character:PivotTo(planetCoords[Value])
     end
+})
+autobuy:AddSlider('ItemAmount', {
+    Text = 'Buy',
+    Default = 1,
+    Min = 1,
+    Max = 5,
+    Rounding = 0,
+    Compact = false,
+
+    Callback = function(num)
+        shockstoneFarmNum = num
+    end
+})
+autobuy:AddDropdown('Item', {
+    Values = items,
+    Default = 1, -- number index of the value / string
+    Multi = false, -- true / false, allows multiple choices to be selected
+
+    Tooltip = 'Item', -- Information shown when you hover over the dropdown
+
+    Callback = function(Value)
+        item = Value
+        print(item)
+    end
+})
+autobuy:AddButton({
+    Text = 'Get',
+    Func = function()
+        if item == nil then return end
+        itemFuncs[item]()
+    end,
+    DoubleClick = false,
 })
 rightgroup:AddButton({
     Text = 'Pipe Desync',
