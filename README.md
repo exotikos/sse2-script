@@ -1,5 +1,5 @@
 # Solar System Exploitation 2
-<sub>a script for the roblox game Solar System Exploration 2</sub>
+### shittiest roblox game script of all time
 
 does some things you probably wanna do with a gui for that game
 
